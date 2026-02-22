@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import 'view_model.dart';
+import 'rail.dart';
 
-/// A widget that uses both `States` and `Effects` emitted by the [ViewModel] to
+/// A widget that uses both `States` and `Effects` emitted by the [Rail] to
 /// construct new widgets and react to effects.
 ///
 /// If you need to react only either to `States` or `Effects`, see
-/// [ViewModelBuilder] and [ViewModelListener].
+/// [RailBuilder] and [RailListener].
 ///
 /// ```dart
-/// ViewModelConsumer<MyViewModel, MyState, MyEffect>() {
+/// RailConsumer<MyRail, MyState, MyEffect>() {
 ///   listener: (context, effect) {
 ///     // do something
 ///   },
@@ -22,33 +22,33 @@ import 'view_model.dart';
 /// }
 /// ```
 ///
-/// If [viewModel] is not provided, [ViewModelConsumer] will look up the widget
-/// tree using [ViewModelProvider] and the current `BuildContext` for a
-/// compatible ViewModel.
+/// If [rail] is not provided, [RailConsumer] will look up the widget
+/// tree using [RailProvider] and the current `BuildContext` for a
+/// compatible Rail.
 ///
-class ViewModelConsumer<VM extends ViewModel<STATE, EFFECT>, STATE, EFFECT>
+class RailConsumer<RAIL extends Rail<STATE, EFFECT>, STATE, EFFECT>
     extends StatefulWidget {
-  const ViewModelConsumer({
+  const RailConsumer({
     Key? key,
     required this.builder,
-    this.viewModel,
+    this.rail,
     this.listener,
     this.buildWhen,
     this.listenWhen,
   }) : super(key: key);
 
-  /// The [ViewModel] that [ViewModelConsumer] will react to.
+  /// The [Rail] that [RailConsumer] will react to.
   ///
-  /// If [viewModel] is not provided, [ViewModelConsumer] will look up the
-  /// widget tree using [ViewModelProvider] and the current `BuildContext` for a
-  /// compatible ViewModel.
-  final VM? viewModel;
+  /// If [rail] is not provided, [RailConsumer] will look up the
+  /// widget tree using [RailProvider] and the current `BuildContext` for a
+  /// compatible Rail.
+  final RAIL? rail;
 
-  /// Builds a new widget every time the [viewModel] emits a new [state],
+  /// Builds a new widget every time the [rail] emits a new [state],
   /// and the [buildWhen] function returns true.
   final Widget Function(BuildContext context, STATE state) builder;
 
-  /// Is invoked every time the [viewModel] emits a new [effect],
+  /// Is invoked every time the [rail] emits a new [effect],
   /// and the [listenWhen] function returns true.
   final void Function(BuildContext context, EFFECT effect)? listener;
 
@@ -56,24 +56,24 @@ class ViewModelConsumer<VM extends ViewModel<STATE, EFFECT>, STATE, EFFECT>
   /// the [current] state.
   ///
   /// The default behavior is to always call [builder] when receiving a new
-  /// state from [viewModel].
+  /// state from [rail].
   final bool Function(STATE previous, STATE current)? buildWhen;
 
   /// Controls when [listener] should be called by using the [previous] effect
   /// and the [current] state.
   ///
   /// The default behavior is to always call [listener] when receiving a new
-  /// effect from [viewModel].
+  /// effect from [rail].
   final bool Function(EFFECT? previous, EFFECT current)? listenWhen;
 
   @override
-  State<ViewModelConsumer<VM, STATE, EFFECT>> createState() =>
-      _ViewModelConsumerState<VM, STATE, EFFECT>();
+  State<RailConsumer<RAIL, STATE, EFFECT>> createState() =>
+      _RailConsumerState<RAIL, STATE, EFFECT>();
 }
 
-class _ViewModelConsumerState<VM extends ViewModel<STATE, EFFECT>, STATE,
-    EFFECT> extends State<ViewModelConsumer<VM, STATE, EFFECT>> {
-  late VM _viewModel;
+class _RailConsumerState<RAIL extends Rail<STATE, EFFECT>, STATE, EFFECT>
+    extends State<RailConsumer<RAIL, STATE, EFFECT>> {
+  late RAIL _rail;
   StreamSubscription<EFFECT>? _effectSubscription;
   StreamSubscription<STATE>? _stateSubscription;
   late STATE _state;
@@ -82,22 +82,22 @@ class _ViewModelConsumerState<VM extends ViewModel<STATE, EFFECT>, STATE,
   @override
   void initState() {
     super.initState();
-    _viewModel = widget.viewModel ?? context.read<VM>();
-    _state = _viewModel.state;
-    _effect = _viewModel.lastEffect;
+    _rail = widget.rail ?? context.read<RAIL>();
+    _state = _rail.state;
+    _effect = _rail.lastEffect;
     _subscribe();
   }
 
   @override
-  void didUpdateWidget(ViewModelConsumer<VM, STATE, EFFECT> oldWidget) {
+  void didUpdateWidget(RailConsumer<RAIL, STATE, EFFECT> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldViewModel = oldWidget.viewModel ?? context.read<VM>();
-    final currentViewModel = widget.viewModel ?? oldViewModel;
-    if (oldViewModel != currentViewModel) {
+    final oldRail = oldWidget.rail ?? context.read<RAIL>();
+    final currentRail = widget.rail ?? oldRail;
+    if (oldRail != currentRail) {
       if (_stateSubscription != null && _effectSubscription != null) {
-        _viewModel = currentViewModel;
-        _state = _viewModel.state;
-        _effect = _viewModel.lastEffect;
+        _rail = currentRail;
+        _state = _rail.state;
+        _effect = _rail.lastEffect;
         _unsubscribe();
       }
       _subscribe();
@@ -107,12 +107,12 @@ class _ViewModelConsumerState<VM extends ViewModel<STATE, EFFECT>, STATE,
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final viewModel = widget.viewModel ?? context.read<VM>();
-    if (_viewModel != viewModel) {
+    final rail = widget.rail ?? context.read<RAIL>();
+    if (_rail != rail) {
       if (_stateSubscription != null && _effectSubscription != null) {
-        _viewModel = viewModel;
-        _state = _viewModel.state;
-        _effect = _viewModel.lastEffect;
+        _rail = rail;
+        _state = _rail.state;
+        _effect = _rail.lastEffect;
         _unsubscribe();
       }
       _subscribe();
@@ -121,8 +121,8 @@ class _ViewModelConsumerState<VM extends ViewModel<STATE, EFFECT>, STATE,
 
   @override
   Widget build(BuildContext context) {
-    if (widget.viewModel == null) {
-      context.select<VM, bool>((viewModel) => identical(_viewModel, viewModel));
+    if (widget.rail == null) {
+      context.select<RAIL, bool>((rail) => identical(_rail, rail));
     }
 
     return widget.builder(context, _state);
@@ -135,7 +135,7 @@ class _ViewModelConsumerState<VM extends ViewModel<STATE, EFFECT>, STATE,
   }
 
   void _subscribe() {
-    _stateSubscription = _viewModel.stateStream.listen((state) {
+    _stateSubscription = _rail.stateStream.listen((state) {
       if (widget.buildWhen?.call(_state, state) ?? true) {
         setState(() {});
       }
@@ -144,9 +144,9 @@ class _ViewModelConsumerState<VM extends ViewModel<STATE, EFFECT>, STATE,
 
     final listener = widget.listener;
     if (listener != null) {
-      _effectSubscription = _viewModel.effectStream.listen((effect) {
+      _effectSubscription = _rail.effectStream.listen((effect) {
         if (widget.listenWhen?.call(_effect, effect) ?? true) {
-          listener(context, effect);
+          if (mounted) listener(context, effect);
         }
         _effect = effect;
       });

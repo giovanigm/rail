@@ -5,8 +5,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
 
-import 'package:example/pages/examples/counter/counter_page_view_model.dart'
-    as _i2;
+import 'package:example/pages/examples/counter/counter_page_rail.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -20,11 +19,10 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-/// A class which mocks [CounterPageViewModel].
+/// A class which mocks [CounterPageRail].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCounterPageViewModel extends _i1.Mock
-    implements _i2.CounterPageViewModel {
+class MockCounterPageRail extends _i1.Mock implements _i2.CounterPageRail {
   @override
   bool get isClosed => (super.noSuchMethod(
         Invocation.getter(#isClosed),

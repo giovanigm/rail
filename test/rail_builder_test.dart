@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
-class _TestViewModel extends ViewModel<int, void> {
-  _TestViewModel() : super(initialState: 0);
+class _TestRail extends Rail<int, void> {
+  _TestRail() : super(initialState: 0);
 
   void increment() {
     emitState(state + 1);
   }
 }
 
-const _newViewModelKey = Key("new_view_model");
-const _sameViewModelKey = Key("same_view_model");
+const _newRailKey = Key("new_rail");
+const _sameRailKey = Key("same_rail");
 const _incrementKey = Key("increment");
 
 class _TestWidget extends StatefulWidget {
@@ -25,17 +25,17 @@ class _TestWidget extends StatefulWidget {
 }
 
 class _TestWidgetState extends State<_TestWidget> {
-  late _TestViewModel viewModel;
+  late _TestRail rail;
 
   @override
   void initState() {
-    viewModel = _TestViewModel();
+    rail = _TestRail();
     super.initState();
   }
 
   @override
   void dispose() {
-    viewModel.close();
+    rail.close();
     super.dispose();
   }
 
@@ -43,8 +43,8 @@ class _TestWidgetState extends State<_TestWidget> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: ViewModelBuilder<_TestViewModel, int>(
-          viewModel: viewModel,
+        body: RailBuilder<_TestRail, int>(
+          rail: rail,
           buildWhen: (previous, current) {
             widget.onBuildWhenCalled?.call(previous, current);
             return previous != current;
@@ -54,25 +54,25 @@ class _TestWidgetState extends State<_TestWidget> {
             return Column(
               children: [
                 ElevatedButton(
-                  key: _newViewModelKey,
+                  key: _newRailKey,
                   onPressed: () {
                     setState(() {
-                      viewModel = _TestViewModel();
+                      rail = _TestRail();
                     });
                   },
                   child: const SizedBox(),
                 ),
                 ElevatedButton(
-                  key: _sameViewModelKey,
+                  key: _sameRailKey,
                   onPressed: () {
-                    setState(() => viewModel = viewModel);
+                    setState(() => rail = rail);
                   },
                   child: const SizedBox(),
                 ),
                 ElevatedButton(
                   key: _incrementKey,
                   onPressed: () {
-                    viewModel.increment();
+                    rail.increment();
                   },
                   child: const SizedBox(),
                 ),
@@ -86,22 +86,22 @@ class _TestWidgetState extends State<_TestWidget> {
 }
 
 void main() {
-  late _TestViewModel viewModel;
+  late _TestRail rail;
 
   setUp(() {
-    viewModel = _TestViewModel();
+    rail = _TestRail();
   });
 
   tearDown(() {
-    viewModel.close();
+    rail.close();
   });
 
-  group("ViewModelBuilder", () {
+  group("RailBuilder", () {
     testWidgets("should build widget returned from builder", (tester) async {
       const targetKey = Key('key');
       await tester.pumpWidget(
-        ViewModelBuilder<_TestViewModel, int>(
-          viewModel: viewModel,
+        RailBuilder<_TestRail, int>(
+          rail: rail,
           builder: (context, state) => const SizedBox(key: targetKey),
         ),
       );
@@ -111,8 +111,8 @@ void main() {
     testWidgets("should call builder for every state", (tester) async {
       final List<int> states = [];
 
-      await tester.pumpWidget(ViewModelBuilder<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailBuilder<_TestRail, int>(
+        rail: rail,
         builder: (context, state) {
           states.add(state);
           return const Placeholder();
@@ -121,13 +121,13 @@ void main() {
 
       expect(states, [0]);
 
-      viewModel.emitState(1);
+      rail.emitState(1);
       await tester.pump();
       await tester.pump();
 
       expect(states, [0, 1]);
 
-      viewModel.emitState(2);
+      rail.emitState(2);
       await tester.pump();
       await tester.pump();
 
@@ -140,8 +140,8 @@ void main() {
       int? previousEffect;
       late int currentEffect;
 
-      await tester.pumpWidget(ViewModelBuilder<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailBuilder<_TestRail, int>(
+        rail: rail,
         buildWhen: (previous, current) {
           previousEffect = previous;
           currentEffect = current;
@@ -152,14 +152,14 @@ void main() {
         },
       ));
 
-      viewModel.emitState(1);
+      rail.emitState(1);
       await tester.pump();
       await tester.pump();
 
       expect(previousEffect, 0);
       expect(currentEffect, 1);
 
-      viewModel.emitState(2);
+      rail.emitState(2);
       await tester.pump();
       await tester.pump();
 
@@ -171,8 +171,8 @@ void main() {
         (tester) async {
       final List<int> states = [];
 
-      await tester.pumpWidget(ViewModelBuilder<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailBuilder<_TestRail, int>(
+        rail: rail,
         buildWhen: (previous, current) => true,
         builder: (context, state) {
           states.add(state);
@@ -182,13 +182,13 @@ void main() {
 
       expect(states, [0]);
 
-      viewModel.emitState(1);
+      rail.emitState(1);
       await tester.pump();
       await tester.pump();
 
       expect(states, [0, 1]);
 
-      viewModel.emitState(2);
+      rail.emitState(2);
       await tester.pump();
       await tester.pump();
 
@@ -199,8 +199,8 @@ void main() {
         (tester) async {
       final List<int> states = [];
 
-      await tester.pumpWidget(ViewModelBuilder<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailBuilder<_TestRail, int>(
+        rail: rail,
         buildWhen: (previous, current) => false,
         builder: (context, state) {
           states.add(state);
@@ -210,13 +210,13 @@ void main() {
 
       expect(states, [0]);
 
-      viewModel.emitState(1);
+      rail.emitState(1);
       await tester.pump();
       await tester.pump();
 
       expect(states, [0]);
 
-      viewModel.emitState(2);
+      rail.emitState(2);
       await tester.pump();
       await tester.pump();
 
@@ -224,14 +224,14 @@ void main() {
     });
 
     testWidgets(
-        "should retrieve the ViewModel from the context if it is not provided",
+        "should retrieve the Rail from the context if it is not provided",
         (tester) async {
       final List<int> states = [];
 
       await tester.pumpWidget(
-        ViewModelProvider.value(
-          value: viewModel,
-          child: ViewModelBuilder<_TestViewModel, int>(
+        RailProvider.value(
+          value: rail,
+          child: RailBuilder<_TestRail, int>(
             builder: (context, state) {
               states.add(state);
               return const SizedBox();
@@ -242,7 +242,7 @@ void main() {
 
       expect(states, [0]);
 
-      viewModel.increment();
+      rail.increment();
       await tester.pump();
       await tester.pump();
 
@@ -250,7 +250,7 @@ void main() {
     });
 
     testWidgets(
-        "should keep subscription if ViewModel is changed at runtime to the same ViewModel",
+        "should keep subscription if Rail is changed at runtime to the same Rail",
         (tester) async {
       int? lastState;
       late int currentState;
@@ -268,7 +268,7 @@ void main() {
       expect(lastState, 0);
       expect(currentState, 1);
 
-      await tester.tap(find.byKey(_sameViewModelKey));
+      await tester.tap(find.byKey(_sameRailKey));
 
       await tester.tap(find.byKey(_incrementKey));
       await tester.pump();
@@ -278,7 +278,7 @@ void main() {
     });
 
     testWidgets(
-        "should change subscription if ViewModel is changed at runtime to a different ViewModel",
+        "should change subscription if Rail is changed at runtime to a different Rail",
         (tester) async {
       int? lastState;
       late int currentState;
@@ -295,7 +295,7 @@ void main() {
       expect(lastState, 0);
       expect(currentState, 1);
 
-      await tester.tap(find.byKey(_newViewModelKey));
+      await tester.tap(find.byKey(_newRailKey));
 
       await tester.tap(find.byKey(_incrementKey));
       await tester.pump();
@@ -304,17 +304,17 @@ void main() {
       expect(currentState, 1);
     });
 
-    testWidgets("should update subscription when provided ViewModel is changed",
+    testWidgets("should update subscription when provided Rail is changed",
         (tester) async {
-      final firstViewModel = _TestViewModel();
-      final secondViewModel = _TestViewModel();
+      final firstRail = _TestRail();
+      final secondRail = _TestRail();
 
       final List<int> states = [];
 
       await tester.pumpWidget(
-        ViewModelProvider.value(
-          value: firstViewModel,
-          child: ViewModelBuilder<_TestViewModel, int>(
+        RailProvider.value(
+          value: firstRail,
+          child: RailBuilder<_TestRail, int>(
             builder: (context, state) {
               states.add(state);
               return const SizedBox();
@@ -323,14 +323,14 @@ void main() {
         ),
       );
 
-      firstViewModel.increment();
+      firstRail.increment();
       await tester.pump();
       await tester.pump();
 
       await tester.pumpWidget(
-        ViewModelProvider.value(
-          value: secondViewModel,
-          child: ViewModelBuilder<_TestViewModel, int>(
+        RailProvider.value(
+          value: secondRail,
+          child: RailBuilder<_TestRail, int>(
             builder: (context, state) {
               states.add(state);
               return const SizedBox();
@@ -339,18 +339,18 @@ void main() {
         ),
       );
 
-      secondViewModel.increment();
+      secondRail.increment();
       await tester.pump();
       await tester.pump();
 
-      firstViewModel.increment();
+      firstRail.increment();
       await tester.pump();
       await tester.pump();
 
       expect(states, [0, 1, 0, 1]);
 
-      firstViewModel.close();
-      secondViewModel.close();
+      firstRail.close();
+      secondRail.close();
     });
   });
 }

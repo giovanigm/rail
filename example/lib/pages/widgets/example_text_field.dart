@@ -27,7 +27,7 @@ class ExampleTextField extends StatelessWidget {
       style: Theme.of(context)
           .textTheme
           .labelLarge
-          ?.copyWith(color: Theme.of(context).colorScheme.onBackground),
+          ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.all(16),
         labelText: hintText,
@@ -36,7 +36,7 @@ class ExampleTextField extends StatelessWidget {
         hintStyle: Theme.of(context)
             .textTheme
             .labelLarge
-            ?.copyWith(color: Theme.of(context).colorScheme.onBackground),
+            ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
         filled: true,
         border: OutlineInputBorder(
           borderSide: success

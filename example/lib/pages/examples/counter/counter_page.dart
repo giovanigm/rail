@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
-import 'counter_page_view_model.dart';
+import 'counter_page_rail.dart';
 
 class CounterPage extends StatelessWidget {
   const CounterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<CounterPageViewModel, int>(
+    return RailBuilder<CounterPageRail, int>(
       builder: (context, state) => Scaffold(
         appBar: AppBar(title: const Text('Counter')),
         body: Center(
@@ -24,7 +24,7 @@ class CounterPage extends StatelessWidget {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => context.read<CounterPageViewModel>().add(),
+          onPressed: () => context.read<CounterPageRail>().add(),
           child: const Icon(Icons.add),
         ),
       ),

@@ -1,26 +1,26 @@
 import 'package:example/pages/examples/counter/counter_page.dart';
-import 'package:example/pages/examples/counter/counter_page_view_model.dart';
+import 'package:example/pages/examples/counter/counter_page_rail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'counter_page_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<CounterPageViewModel>()])
+@GenerateNiceMocks([MockSpec<CounterPageRail>()])
 void main() {
   group("Counter Page", () {
     setUp(() {});
 
-    testWidgets("Mock ViewModel", (widgetTester) async {
-      final viewModel = MockCounterPageViewModel();
+    testWidgets("Mock Rail", (widgetTester) async {
+      final rail = MockCounterPageRail();
 
-      when(viewModel.state).thenReturn(2);
+      when(rail.state).thenReturn(2);
 
       await widgetTester.pumpWidget(MaterialApp(
-          home: ViewModelProvider<CounterPageViewModel>(
-        create: (context) => viewModel,
+          home: RailProvider<CounterPageRail>(
+        create: (context) => rail,
         child: const CounterPage(),
       )));
 
@@ -29,20 +29,20 @@ void main() {
   });
 
   group("Counter Page", () {
-    late CounterPageViewModel viewModel;
+    late CounterPageRail rail;
 
     setUp(() {
-      viewModel = CounterPageViewModel();
+      rail = CounterPageRail();
     });
 
     tearDown(() {
-      viewModel.close();
+      rail.close();
     });
 
-    testWidgets("Real ViewModel", (tester) async {
+    testWidgets("Real Rail", (tester) async {
       await tester.pumpWidget(MaterialApp(
-          home: ViewModelProvider(
-        create: (context) => viewModel,
+          home: RailProvider(
+        create: (context) => rail,
         child: const CounterPage(),
       )));
 

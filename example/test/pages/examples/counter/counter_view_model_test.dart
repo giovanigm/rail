@@ -1,22 +1,22 @@
-import 'package:example/pages/examples/counter/counter_page_view_model.dart';
+import 'package:example/pages/examples/counter/counter_page_rail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late CounterPageViewModel viewModel;
+  late CounterPageRail rail;
 
   setUp(() {
-    viewModel = CounterPageViewModel();
+    rail = CounterPageRail();
   });
 
   tearDown(() {
-    viewModel.close();
+    rail.close();
   });
 
   test("", () async {
-    expect(viewModel.stateStream, emitsInOrder([1, 2, 3]));
-    viewModel.add();
-    viewModel.add();
-    viewModel.add();
-    await viewModel.close();
+    expect(rail.stateStream, emitsInOrder([1, 2, 3]));
+    rail.add();
+    rail.add();
+    rail.add();
+    await rail.close();
   });
 }

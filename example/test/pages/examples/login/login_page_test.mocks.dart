@@ -7,7 +7,7 @@ import 'dart:async' as _i4;
 
 import 'package:example/pages/examples/login/login_page_effect.dart' as _i5;
 import 'package:example/pages/examples/login/login_page_state.dart' as _i2;
-import 'package:example/pages/examples/login/login_page_view_model.dart' as _i3;
+import 'package:example/pages/examples/login/login_page_rail.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -32,11 +32,10 @@ class _FakeLoginPageState_0 extends _i1.SmartFake
         );
 }
 
-/// A class which mocks [LoginPageViewModel].
+/// A class which mocks [LoginPageRail].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLoginPageViewModel extends _i1.Mock
-    implements _i3.LoginPageViewModel {
+class MockLoginPageRail extends _i1.Mock implements _i3.LoginPageRail {
   @override
   bool get isClosed => (super.noSuchMethod(
         Invocation.getter(#isClosed),

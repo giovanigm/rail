@@ -1,10 +1,10 @@
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
 import 'login_page_effect.dart';
 import 'login_page_state.dart';
 
-class LoginPageViewModel extends ViewModel<LoginPageState, LoginPageEffect> {
-  LoginPageViewModel() : super(initialState: LoginPageState.initialState());
+class LoginPageRail extends Rail<LoginPageState, LoginPageEffect> {
+  LoginPageRail() : super(initialState: LoginPageState.initialState());
 
   static const _correctEmail = 'email@email.com';
   static const _correctPassword = '123456';

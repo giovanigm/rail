@@ -8,7 +8,7 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("flutter_view_model")),
+      appBar: AppBar(title: const Text("rail")),
       body: SafeArea(
         child: ListView.separated(
           itemBuilder: (context, index) => _ExampleListTile(examples[index]),

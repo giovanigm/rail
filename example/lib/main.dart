@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
 import 'pages/main/main_page.dart';
 import 'pages/splash/splash_page.dart';
-import 'pages/splash/splash_page_view_model.dart';
+import 'pages/splash/splash_page_rail.dart';
 import 'pages/widgets/loading_overlay.dart';
 
 void main() {
@@ -12,8 +12,8 @@ void main() {
 
 final routes = {
   '/main': (_) => const MainPage(),
-  '/': (context) => ViewModelProvider<SplashPageViewModel>(
-        create: (_) => SplashPageViewModel()..load(),
+  '/': (context) => RailProvider<SplashPageRail>(
+        create: (_) => SplashPageRail()..load(),
         child: const SplashPage(),
       ),
 };

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
-class _TestViewModel extends ViewModel<void, int> {
-  _TestViewModel() : super(initialState: null);
+class _TestRail extends Rail<void, int> {
+  _TestRail() : super(initialState: null);
 
   void increment() {
     emitEffect((lastEffect ?? 0) + 1);
   }
 }
 
-const _newViewModelKey = Key("new_view_model");
-const _sameViewModelKey = Key("same_view_model");
+const _newRailKey = Key("new_rail");
+const _sameRailKey = Key("same_rail");
 const _incrementKey = Key("increment");
 
 class _TestWidget extends StatefulWidget {
@@ -25,17 +25,17 @@ class _TestWidget extends StatefulWidget {
 }
 
 class _TestWidgetState extends State<_TestWidget> {
-  late _TestViewModel viewModel;
+  late _TestRail rail;
 
   @override
   void initState() {
-    viewModel = _TestViewModel();
+    rail = _TestRail();
     super.initState();
   }
 
   @override
   void dispose() {
-    viewModel.close();
+    rail.close();
     super.dispose();
   }
 
@@ -44,8 +44,8 @@ class _TestWidgetState extends State<_TestWidget> {
     widget.onBuild?.call();
     return MaterialApp(
       home: Scaffold(
-        body: ViewModelListener<_TestViewModel, int>(
-          viewModel: viewModel,
+        body: RailListener<_TestRail, int>(
+          rail: rail,
           listener: (context, effect) {},
           listenWhen: (previous, current) {
             widget.onReactToEffectWhenCalled?.call(previous, current);
@@ -54,25 +54,25 @@ class _TestWidgetState extends State<_TestWidget> {
           child: Column(
             children: [
               ElevatedButton(
-                key: _newViewModelKey,
+                key: _newRailKey,
                 onPressed: () {
                   setState(() {
-                    viewModel = _TestViewModel();
+                    rail = _TestRail();
                   });
                 },
                 child: const SizedBox(),
               ),
               ElevatedButton(
-                key: _sameViewModelKey,
+                key: _sameRailKey,
                 onPressed: () {
-                  setState(() => viewModel = viewModel);
+                  setState(() => rail = rail);
                 },
                 child: const SizedBox(),
               ),
               ElevatedButton(
                 key: _incrementKey,
                 onPressed: () {
-                  viewModel.increment();
+                  rail.increment();
                 },
                 child: const SizedBox(),
               ),
@@ -85,22 +85,22 @@ class _TestWidgetState extends State<_TestWidget> {
 }
 
 void main() {
-  late _TestViewModel viewModel;
+  late _TestRail rail;
 
   setUp(() {
-    viewModel = _TestViewModel();
+    rail = _TestRail();
   });
 
   tearDown(() {
-    viewModel.close();
+    rail.close();
   });
 
-  group("ViewModelListener", () {
+  group("RailListener", () {
     testWidgets("should render child", (tester) async {
       const targetKey = Key('key');
       await tester.pumpWidget(
-        ViewModelListener<_TestViewModel, int>(
-          viewModel: viewModel,
+        RailListener<_TestRail, int>(
+          rail: rail,
           listener: (context, effect) {},
           child: const SizedBox(key: targetKey),
         ),
@@ -111,23 +111,23 @@ void main() {
     testWidgets("should call listener for every effect", (tester) async {
       final List<int> effects = [];
 
-      await tester.pumpWidget(ViewModelListener<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailListener<_TestRail, int>(
+        rail: rail,
         listener: (context, effect) {
           effects.add(effect);
         },
         child: const Placeholder(),
       ));
 
-      viewModel.emitEffect(1);
+      rail.emitEffect(1);
       await tester.pump();
 
       expect(effects, [1]);
 
-      viewModel.emitEffect(1);
+      rail.emitEffect(1);
       await tester.pump();
 
-      viewModel.emitEffect(2);
+      rail.emitEffect(2);
       await tester.pump();
 
       expect(effects, [1, 1, 2]);
@@ -139,8 +139,8 @@ void main() {
       int? previousEffect;
       late int currentEffect;
 
-      await tester.pumpWidget(ViewModelListener<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailListener<_TestRail, int>(
+        rail: rail,
         listenWhen: (previous, current) {
           previousEffect = previous;
           currentEffect = current;
@@ -150,13 +150,13 @@ void main() {
         child: const Placeholder(),
       ));
 
-      viewModel.emitEffect(1);
+      rail.emitEffect(1);
       await tester.pump();
 
       expect(previousEffect, null);
       expect(currentEffect, 1);
 
-      viewModel.emitEffect(2);
+      rail.emitEffect(2);
       await tester.pump();
 
       expect(previousEffect, 1);
@@ -167,8 +167,8 @@ void main() {
         (tester) async {
       final List<int> effects = [];
 
-      await tester.pumpWidget(ViewModelListener<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailListener<_TestRail, int>(
+        rail: rail,
         listenWhen: (previous, current) => true,
         listener: (context, effect) {
           effects.add(effect);
@@ -176,12 +176,12 @@ void main() {
         child: const Placeholder(),
       ));
 
-      viewModel.emitEffect(1);
+      rail.emitEffect(1);
       await tester.pump();
 
       expect(effects, [1]);
 
-      viewModel.emitEffect(2);
+      rail.emitEffect(2);
       await tester.pump();
 
       expect(effects, [1, 2]);
@@ -191,8 +191,8 @@ void main() {
         (tester) async {
       final List<int> effects = [];
 
-      await tester.pumpWidget(ViewModelListener<_TestViewModel, int>(
-        viewModel: viewModel,
+      await tester.pumpWidget(RailListener<_TestRail, int>(
+        rail: rail,
         listenWhen: (previous, current) => false,
         listener: (context, effect) {
           effects.add(effect);
@@ -200,12 +200,12 @@ void main() {
         child: const Placeholder(),
       ));
 
-      viewModel.emitEffect(1);
+      rail.emitEffect(1);
       await tester.pump();
 
       expect(effects, []);
 
-      viewModel.emitEffect(2);
+      rail.emitEffect(2);
       await tester.pump();
 
       expect(effects, []);
@@ -214,8 +214,8 @@ void main() {
     testWidgets("should not trigger builds on effects received",
         (tester) async {
       int builds = 0;
-      await tester.pumpWidget(ViewModelProvider(
-        create: (context) => viewModel,
+      await tester.pumpWidget(RailProvider(
+        create: (context) => rail,
         child: _TestWidget(
           onBuild: () {
             builds++;
@@ -223,43 +223,43 @@ void main() {
         ),
       ));
 
-      viewModel.emitEffect(1);
+      rail.emitEffect(1);
       await tester.pump();
 
-      viewModel.emitEffect(2);
+      rail.emitEffect(2);
       await tester.pump();
 
       expect(builds, 1);
     });
 
     testWidgets(
-        "should retrieve the ViewModel from the context if it is not provided",
+        "should retrieve the Rail from the context if it is not provided",
         (tester) async {
       final List<int> effects = [];
 
       await tester.pumpWidget(
-        ViewModelProvider(
-          create: (context) => viewModel,
-          child: ViewModelListener<_TestViewModel, int>(
+        RailProvider(
+          create: (context) => rail,
+          child: RailListener<_TestRail, int>(
             listener: (context, effect) => effects.add(effect),
             child: const SizedBox(),
           ),
         ),
       );
 
-      viewModel.increment();
+      rail.increment();
       await tester.pump();
 
       expect(effects, [1]);
 
-      viewModel.increment();
+      rail.increment();
       await tester.pump();
 
       expect(effects, [1, 2]);
     });
 
     testWidgets(
-        "should keep subscription if ViewModel is changed at runtime to the same ViewModel",
+        "should keep subscription if Rail is changed at runtime to the same Rail",
         (tester) async {
       int? lastEffect;
       late int currentEffect;
@@ -276,7 +276,7 @@ void main() {
       expect(lastEffect, null);
       expect(currentEffect, 1);
 
-      await tester.tap(find.byKey(_sameViewModelKey));
+      await tester.tap(find.byKey(_sameRailKey));
 
       await tester.tap(find.byKey(_incrementKey));
       await tester.pump();
@@ -286,7 +286,7 @@ void main() {
     });
 
     testWidgets(
-        "should change subscription if ViewModel is changed at runtime to a different ViewModel",
+        "should change subscription if Rail is changed at runtime to a different Rail",
         (tester) async {
       int? lastEffect;
       late int currentEffect;
@@ -303,7 +303,7 @@ void main() {
       expect(lastEffect, null);
       expect(currentEffect, 1);
 
-      await tester.tap(find.byKey(_newViewModelKey));
+      await tester.tap(find.byKey(_newRailKey));
 
       await tester.tap(find.byKey(_incrementKey));
       await tester.pump();
@@ -312,44 +312,44 @@ void main() {
       expect(currentEffect, 1);
     });
 
-    testWidgets("should update subscription when provided ViewModel is changed",
+    testWidgets("should update subscription when provided Rail is changed",
         (tester) async {
-      final firstViewModel = _TestViewModel();
-      final secondViewModel = _TestViewModel();
+      final firstRail = _TestRail();
+      final secondRail = _TestRail();
 
       final List<int> effects = [];
 
       await tester.pumpWidget(
-        ViewModelProvider.value(
-          value: firstViewModel,
-          child: ViewModelListener<_TestViewModel, int>(
+        RailProvider.value(
+          value: firstRail,
+          child: RailListener<_TestRail, int>(
             listener: (context, effect) => effects.add(effect),
             child: const SizedBox(),
           ),
         ),
       );
 
-      firstViewModel.increment();
+      firstRail.increment();
 
       await tester.pumpWidget(
-        ViewModelProvider.value(
-          value: secondViewModel,
-          child: ViewModelListener<_TestViewModel, int>(
+        RailProvider.value(
+          value: secondRail,
+          child: RailListener<_TestRail, int>(
             listener: (context, effect) => effects.add(effect),
             child: const SizedBox(),
           ),
         ),
       );
 
-      secondViewModel.increment();
+      secondRail.increment();
       await tester.pump();
-      firstViewModel.increment();
+      firstRail.increment();
       await tester.pump();
 
       expect(effects, [1, 1]);
 
-      firstViewModel.close();
-      secondViewModel.close();
+      firstRail.close();
+      secondRail.close();
     });
   });
 }

@@ -1,25 +1,25 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
 import 'counter/counter_page.dart';
-import 'counter/counter_page_view_model.dart';
+import 'counter/counter_page_rail.dart';
 import 'login/login_page.dart';
-import 'login/login_page_view_model.dart';
+import 'login/login_page_rail.dart';
 
 typedef Example = ({String name, Widget widget});
 
 final examples = <Example>[
   (
     name: "Counter",
-    widget: ViewModelProvider<CounterPageViewModel>(
-      create: (_) => CounterPageViewModel(),
+    widget: RailProvider<CounterPageRail>(
+      create: (_) => CounterPageRail(),
       child: const CounterPage(),
     )
   ),
   (
     name: "Login",
-    widget: ViewModelProvider<LoginPageViewModel>(
-      create: (_) => LoginPageViewModel(),
+    widget: RailProvider<LoginPageRail>(
+      create: (_) => LoginPageRail(),
       child: const LoginPage(),
     ),
   )

@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_view_model:
+  rail:
     path: ../
 
 dev_dependencies:

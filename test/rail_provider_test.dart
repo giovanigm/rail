@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
-class TestViewModel extends ViewModel<int, int> {
+class TestRail extends Rail<int, int> {
   VoidCallback? onClose;
-  TestViewModel({this.onClose}) : super(initialState: 0);
+  TestRail({this.onClose}) : super(initialState: 0);
 
   @override
   Future<void> close() {
@@ -14,24 +14,24 @@ class TestViewModel extends ViewModel<int, int> {
 }
 
 void main() {
-  late TestViewModel viewModel;
+  late TestRail rail;
 
   setUp(() {
-    viewModel = TestViewModel();
+    rail = TestRail();
   });
 
   tearDown(() {
-    viewModel.close();
+    rail.close();
   });
 
-  group("ViewModelProvider", () {
-    testWidgets("lazily loads ViewModels by default", (tester) async {
+  group("RailProvider", () {
+    testWidgets("lazily loads Rails by default", (tester) async {
       bool isCreated = false;
       await tester.pumpWidget(
-        ViewModelProvider(
+        RailProvider(
           create: (_) {
             isCreated = true;
-            return viewModel;
+            return rail;
           },
           child: const SizedBox(),
         ),
@@ -42,11 +42,11 @@ void main() {
     testWidgets("can override lazy loading", (tester) async {
       bool isCreated = false;
       await tester.pumpWidget(
-        ViewModelProvider(
+        RailProvider(
           lazy: false,
           create: (_) {
             isCreated = true;
-            return viewModel;
+            return rail;
           },
           child: const SizedBox(),
         ),
@@ -54,19 +54,19 @@ void main() {
       expect(isCreated, isTrue);
     });
 
-    testWidgets("provides ViewModel to children", (tester) async {
+    testWidgets("provides Rail to children", (tester) async {
       const buttonKey = Key("button");
       int? state;
       await tester.pumpWidget(
         MaterialApp(
-          home: ViewModelProvider(
+          home: RailProvider(
             lazy: false,
-            create: (_) => viewModel,
+            create: (_) => rail,
             child: Builder(builder: (context) {
               return ElevatedButton(
                 key: buttonKey,
                 onPressed: () {
-                  state = ViewModelProvider.of<TestViewModel>(context).state;
+                  state = RailProvider.of<TestRail>(context).state;
                 },
                 child: const Text(""),
               );
@@ -80,13 +80,13 @@ void main() {
     });
 
     testWidgets(
-        "should throw FlutterError if ViewModelProvider is not found in current context",
+        "should throw FlutterError if RailProvider is not found in current context",
         (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
             builder: (context) {
-              ViewModelProvider.of<TestViewModel>(context);
+              RailProvider.of<TestRail>(context);
               return const SizedBox();
             },
           ),
@@ -94,25 +94,24 @@ void main() {
       );
       final dynamic exception = tester.takeException();
       const expectedMessage = '''
-        ViewModelProvider.of() called with a context that does not contain a TestViewModel.
-        No ancestor could be found starting from the context that was passed to ViewModelProvider.of<TestViewModel>().
+        RailProvider.of() called with a context that does not contain a TestRail.
+        No ancestor could be found starting from the context that was passed to RailProvider.of<TestRail>().
 
-        This can happen if the context you used comes from a widget above the ViewModelProvider.
+        This can happen if the context you used comes from a widget above the RailProvider.
 
         The context used was: Builder(dirty)
 ''';
       expect((exception as FlutterError).message, expectedMessage);
     });
 
-    testWidgets("does not close ViewModel if it was not loaded",
-        (tester) async {
+    testWidgets("does not close Rail if it was not loaded", (tester) async {
       const buttonKey = Key("button");
       bool isClosed = false;
-      final viewModel = TestViewModel(onClose: () => isClosed = true);
+      final rail = TestRail(onClose: () => isClosed = true);
       await tester.pumpWidget(
         MaterialApp(
-          home: ViewModelProvider(
-            create: (_) => viewModel,
+          home: RailProvider(
+            create: (_) => rail,
             child: Builder(builder: (context) {
               return ElevatedButton(
                 key: buttonKey,
@@ -133,19 +132,19 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(isClosed, false);
-      viewModel.close();
+      rail.close();
     });
 
-    testWidgets("closes ViewModel automatically when invoked", (tester) async {
+    testWidgets("closes Rail automatically when invoked", (tester) async {
       const buttonKey = Key("button");
       bool isClosed = false;
-      final viewModel = TestViewModel(onClose: () => isClosed = true);
+      final rail = TestRail(onClose: () => isClosed = true);
       await tester.pumpWidget(
         MaterialApp(
-          home: ViewModelProvider(
-            create: (_) => viewModel,
+          home: RailProvider(
+            create: (_) => rail,
             child: Builder(builder: (context) {
-              ViewModelProvider.of<TestViewModel>(context);
+              RailProvider.of<TestRail>(context);
               return ElevatedButton(
                 key: buttonKey,
                 onPressed: () =>
@@ -165,19 +164,19 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(isClosed, true);
-      viewModel.close();
+      rail.close();
     });
 
     testWidgets("does not close when created using value", (tester) async {
       const buttonKey = Key("button");
       bool isClosed = false;
-      final viewModel = TestViewModel(onClose: () => isClosed = true);
+      final rail = TestRail(onClose: () => isClosed = true);
       await tester.pumpWidget(
         MaterialApp(
-          home: ViewModelProvider.value(
-            value: viewModel,
+          home: RailProvider.value(
+            value: rail,
             child: Builder(builder: (context) {
-              ViewModelProvider.of<TestViewModel>(context);
+              RailProvider.of<TestRail>(context);
               return ElevatedButton(
                 key: buttonKey,
                 onPressed: () =>
@@ -197,7 +196,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(isClosed, false);
-      viewModel.close();
+      rail.close();
     });
   });
 }

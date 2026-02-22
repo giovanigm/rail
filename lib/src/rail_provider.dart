@@ -2,29 +2,29 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
-import 'view_model.dart';
+import 'rail.dart';
 
-/// Provides a [ViewModel] created through the [create] function to descendant
+/// Provides a [Rail] created through the [create] function to descendant
 /// widgets.
 ///
-/// Widgets below in the tree can access the provided [ViewModel] through
-/// `ViewModelProvider.of(context)`.
+/// Widgets below in the tree can access the provided [Rail] through
+/// `RailProvider.of(context)`.
 ///
 /// ```dart
-/// ViewModelProvider<MyViewModel>() {
-///   create: (context) => MyViewModel(),
+/// RailProvider<MyRail>() {
+///   create: (context) => MyRail(),
 ///   child: const SizedBox(),
 /// }
 /// ```
 ///
-/// Automatically closes the created [ViewModel]. If you want to retain the
-/// ViewModel instance, use the [value] constructor.
+/// Automatically closes the created [Rail]. If you want to retain the
+/// Rail instance, use the [value] constructor.
 ///
-/// The [ViewModel] instance will be created only when requested. For the
+/// The [Rail] instance will be created only when requested. For the
 /// opposite behavior, set `lazy = false`.
-class ViewModelProvider<T extends ViewModel<Object?, Object?>>
+class RailProvider<T extends Rail<Object?, Object?>>
     extends SingleChildStatelessWidget {
-  const ViewModelProvider({
+  const RailProvider({
     required Create<T> create,
     Key? key,
     this.child,
@@ -33,12 +33,12 @@ class ViewModelProvider<T extends ViewModel<Object?, Object?>>
         _value = null,
         super(key: key, child: child);
 
-  /// Passes a previously created instance of [ViewModel] to the tree below.
+  /// Passes a previously created instance of [Rail] to the tree below.
   ///
-  /// Does not automatically close the [ViewModel], but ensure that it is
-  /// created by a [ViewModelProvider] higher in the tree using the [create]
+  /// Does not automatically close the [Rail], but ensure that it is
+  /// created by a [RailProvider] higher in the tree using the [create]
   /// function so that it can be closed when no longer needed.
-  const ViewModelProvider.value({
+  const RailProvider.value({
     required T value,
     Key? key,
     this.child,
@@ -59,13 +59,13 @@ class ViewModelProvider<T extends ViewModel<Object?, Object?>>
 
   final T? _value;
 
-  /// Function that allows descendant widgets of this [ViewModelProvider] to
-  /// access the provided [ViewModel] using:
+  /// Function that allows descendant widgets of this [RailProvider] to
+  /// access the provided [Rail] using:
   ///
   /// ```dart
-  /// ViewModelProvider.of<MyViewModel>(context);
+  /// RailProvider.of<MyRail>(context);
   /// ```
-  static T of<T extends ViewModel<Object?, Object?>>(
+  static T of<T extends Rail<Object?, Object?>>(
     BuildContext context, {
     bool listen = false,
   }) {
@@ -75,10 +75,10 @@ class ViewModelProvider<T extends ViewModel<Object?, Object?>>
       if (e.valueType != T) rethrow;
       throw FlutterError(
         '''
-        ViewModelProvider.of() called with a context that does not contain a $T.
-        No ancestor could be found starting from the context that was passed to ViewModelProvider.of<$T>().
+        RailProvider.of() called with a context that does not contain a $T.
+        No ancestor could be found starting from the context that was passed to RailProvider.of<$T>().
 
-        This can happen if the context you used comes from a widget above the ViewModelProvider.
+        This can happen if the context you used comes from a widget above the RailProvider.
 
         The context used was: $context
         ''',
@@ -98,7 +98,7 @@ class ViewModelProvider<T extends ViewModel<Object?, Object?>>
           )
         : InheritedProvider<T>(
             create: _create,
-            dispose: (_, viewModel) => viewModel.close(),
+            dispose: (_, rail) => rail.close(),
             startListening: _startListening,
             lazy: lazy,
             child: child,
@@ -106,8 +106,8 @@ class ViewModelProvider<T extends ViewModel<Object?, Object?>>
   }
 
   static VoidCallback _startListening(
-    InheritedContext<ViewModel<dynamic, dynamic>?> e,
-    ViewModel<dynamic, dynamic> value,
+    InheritedContext<Rail<dynamic, dynamic>?> e,
+    Rail<dynamic, dynamic> value,
   ) {
     final subscription = value.stateStream.listen(
       (dynamic _) => e.markNeedsNotifyDependents(),

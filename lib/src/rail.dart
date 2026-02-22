@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-/// A [ViewModel] can manage the `State` of a View and send `Effects` to it.
+/// A [Rail] can manage the `State` of a View and send `Effects` to it.
 ///
-/// Every [ViewModel] requires an initial state which will be the
-/// state of the [ViewModel] before [emitState] has been called.
+/// Every [Rail] requires an initial state which will be the
+/// state of the [Rail] before [emitState] has been called.
 ///
-/// The current state of a [ViewModel] can be accessed via the [state] getter
+/// The current state of a [Rail] can be accessed via the [state] getter
 /// and the last effect emitted can be accessed via the [lastEffect] getter.
 ///
 /// ```dart
-/// class MyViewModel extends ViewModel<MyState, MyEffect> {
-///   MyViewModel() : super(initialState: MyState());
+/// class MyRail extends Rail<MyState, MyEffect> {
+///   MyRail() : super(initialState: MyState());
 ///
 ///   void doSomething() {
 ///     emitState(MyState());
@@ -20,8 +20,8 @@ import 'package:flutter/foundation.dart';
 ///   }
 /// }
 /// ```
-abstract class ViewModel<State, Effect> {
-  ViewModel({required State initialState}) {
+abstract class Rail<State, Effect> {
+  Rail({required State initialState}) {
     _state = initialState;
   }
 
@@ -49,20 +49,20 @@ abstract class ViewModel<State, Effect> {
   /// Will be canceled after [close] is called.
   Stream<Effect> get effectStream => _effectController.stream;
 
-  /// Whether the [ViewModel] is closed.
+  /// Whether the [Rail] is closed.
   ///
-  /// A [ViewModel] is considered closed once [close] is called.
+  /// A [Rail] is considered closed once [close] is called.
   bool isClosed = false;
 
   ///Emits a new [state] to its subscribers.
   ///
   /// This method is responsible for handling the emission of states. It checks
-  /// if the ViewModel is closed before attempting to emit a new state.
+  /// if the Rail is closed before attempting to emit a new state.
   ///
   /// Parameters:
-  /// - [state]: The new state to be emitted by the ViewModel.
+  /// - [state]: The new state to be emitted by the Rail.
   ///
-  /// If the ViewModel is closed, a debug message is printed, and the state
+  /// If the Rail is closed, a debug message is printed, and the state
   /// emission is skipped.
   /// If the provided state is equal to the current state, the emission is also
   /// skipped.
@@ -87,12 +87,12 @@ abstract class ViewModel<State, Effect> {
   /// Emits a new [effect] to its subscribers.
   ///
   /// This method is responsible for handling the emission of effects. It checks
-  /// if the ViewModel is closed before attempting to emit a new effect.
+  /// if the Rail is closed before attempting to emit a new effect.
   ///
   /// Parameters:
-  /// - [effect]: The new effect to be emitted by the ViewModel.
+  /// - [effect]: The new effect to be emitted by the Rail.
   ///
-  /// If the ViewModel is closed, a debug message is printed, and the effect emission is skipped.
+  /// If the Rail is closed, a debug message is printed, and the effect emission is skipped.
   /// Otherwise, the new effect is set, and it is added to the effect controller.
   ///
   /// Throws:
@@ -110,9 +110,9 @@ abstract class ViewModel<State, Effect> {
     }
   }
 
-  /// Closes the ViewModel, completing associated controllers.
+  /// Closes the Rail, completing associated controllers.
   ///
-  /// It closes the state and effect controllers, marking the ViewModel as closed.
+  /// It closes the state and effect controllers, marking the Rail as closed.
   ///
   /// During the close operation, the state controller and effect controller are closed using
   /// asynchronous operations, and the isClosed flag is set to true.

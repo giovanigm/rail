@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_view_model/flutter_view_model.dart';
+import 'package:rail/rail.dart';
 
 import '../../widgets/example_text_field.dart';
 import '../../widgets/loading_overlay.dart';
 import 'login_page_effect.dart';
 import 'login_page_state.dart';
-import 'login_page_view_model.dart';
+import 'login_page_rail.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelConsumer<LoginPageViewModel, LoginPageState,
-        LoginPageEffect>(
+    return RailConsumer<LoginPageRail, LoginPageState, LoginPageEffect>(
       listener: (context, effect) {
         FocusScope.of(context).unfocus();
         effect.when(
@@ -41,7 +40,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   ExampleTextField(
                     hintText: "Email",
-                    onChanged: context.read<LoginPageViewModel>().setEmail,
+                    onChanged: context.read<LoginPageRail>().setEmail,
                     errorText: state.emailTextError,
                     success: state.isValidEmail,
                     helperText: "Try 'email@email.com'",
@@ -51,7 +50,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   ExampleTextField(
                     hintText: "Password",
-                    onChanged: context.read<LoginPageViewModel>().setPassword,
+                    onChanged: context.read<LoginPageRail>().setPassword,
                     obscureText: true,
                     errorText: state.passwordTextError,
                     success: state.isValidPassword,
@@ -63,7 +62,7 @@ class LoginPage extends StatelessWidget {
                   FilledButton(
                     onPressed: state.isValidPassword && state.isValidEmail
                         ? () async =>
-                            await context.read<LoginPageViewModel>().login()
+                            await context.read<LoginPageRail>().login()
                         : null,
                     style: FilledButton.styleFrom(
                       disabledBackgroundColor: Theme.of(context).disabledColor,
