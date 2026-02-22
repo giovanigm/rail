@@ -22,19 +22,35 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Cache pub deps
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - name: Setup FVM
+        uses: kuhnroyal/flutter-fvm-config-action@v3
+        id: fvm-config-action
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.13.6"
-          channel: "stable"
+          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
           cache: true
+
       - name: Install dependencies
         run: flutter clean && flutter pub get
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
       - name: Run unit tests
         run: flutter test --no-pub --coverage --test-randomize-ordering-seed random
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
