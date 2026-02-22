@@ -1,9 +1,16 @@
 name: rail
-description: A new Flutter project.
+description: A lightweight Flutter MVVM library for state and side effects management.
+homepage: https://github.com/giovanigm/rail
+repository: https://github.com/giovanigm/rail
+issue_tracker: https://github.com/giovanigm/rail/issues
 
-publish_to: "none"
+version: 1.0.0-dev.1
 
-version: 0.1.0
+topics:
+  - state
+  - effects
+  - mvvm
+  - view-model
 
 environment:
   sdk: ">=2.12.0 <4.0.0"

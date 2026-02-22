@@ -12,11 +12,10 @@ void main() {
     rail.close();
   });
 
-  test("", () async {
+  test("counter increments", () {
     expect(rail.stateStream, emitsInOrder([1, 2, 3]));
     rail.add();
     rail.add();
     rail.add();
-    await rail.close();
   });
 }

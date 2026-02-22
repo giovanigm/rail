@@ -19,10 +19,11 @@ void main() {
       when(rail.state).thenReturn(2);
 
       await widgetTester.pumpWidget(MaterialApp(
-          home: RailProvider<CounterPageRail>(
-        create: (context) => rail,
-        child: const CounterPage(),
-      )));
+        home: RailProvider<CounterPageRail>(
+          create: (context) => rail,
+          child: const CounterPage(),
+        ),
+      ));
 
       expect(find.text('2'), findsOneWidget);
     });
@@ -41,10 +42,11 @@ void main() {
 
     testWidgets("Real Rail", (tester) async {
       await tester.pumpWidget(MaterialApp(
-          home: RailProvider(
-        create: (context) => rail,
-        child: const CounterPage(),
-      )));
+        home: RailProvider(
+          create: (context) => rail,
+          child: const CounterPage(),
+        ),
+      ));
 
       expect(find.text('0'), findsOneWidget);
 
