@@ -10,7 +10,7 @@ topics:
   - state
   - effects
   - mvvm
-  - view-model
+  - viewmodel
 
 environment:
   sdk: ">=2.12.0 <4.0.0"
