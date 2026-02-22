@@ -47,7 +47,7 @@ class LoadingOverlayState extends State<LoadingOverlay>
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    color: Colors.black.withValues(alpha: 0.7),
+                    color: Colors.black.withOpacity(0.7),
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),
